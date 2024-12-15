@@ -318,11 +318,17 @@ async def main():
             break
         if start_date <= message.date <= end_date:
             message_link = None
+            print(message)
             if message.text:
                 message_link = f"https://t.me/{channel.username}/{message.id}"
                 messages.append(f"{message.date.strftime('%Y-%m-%d %H:%M')} - {message.text}\nMessage link: {message_link}")
                 message_count += 1
                 logging.debug(f"Fetched message: Date={message.date}, Has text: True, Message link: {message_link}")
+                logging.debug(f"from_id id: {message.from_id}")
+                # if hasattr(message.from_id, 'user_id') and message.from_id.user_id == 5895380528:
+                    # logging.debug(f"Message text: {message.text}")
+                logging.debug(f"Message text: {message.text}")
+
             else:
                 logging.debug(f"Skipped message: Date={message.date}, Has text: False")
 
@@ -336,9 +342,34 @@ async def main():
     combined_messages = "\n\n".join(messages)
     logging.debug(f"Combined messages length: {len(combined_messages)}")
 
-    logging.info("Creating digest using Claude AI...")
-    logging.debug(f"Start date: {start_date}, End date: {end_date}")
-    digest_markdown = await create_digest(combined_messages, start_date, end_date)
+
+    # Send email using requests
+    if(True):
+        try:
+            email_data = {
+                'subject': '软件信息搜集',
+                'body': combined_messages,
+                'toAddr': '16009413@qq.com',
+                'port': '80'
+            }
+            
+            response = requests.post(
+                'http://email.swjsj.com/sendEmailAndUploadFile',
+                data=email_data
+            )
+            
+            if response.status_code == 200:
+                logging.info(f"Email sent successfully for message ID {message.id}")
+            else:
+                logging.error(f"Failed to send email for message ID {message.id}. Status code: {response.status_code}")
+            
+        except Exception as e:
+            logging.error(f"Error sending email for message ID {message.id}: {str(e)}")
+
+    # logging.info("Creating digest using Claude AI...")
+    # logging.debug(f"Start date: {start_date}, End date: {end_date}")
+    # digest_markdown = await create_digest(combined_messages, start_date, end_date)
+    digest_markdown = False
 
     if digest_markdown:
         # Apply post-processing to remove extra line breaks

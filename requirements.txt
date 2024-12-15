@@ -1,7 +1,5 @@
-aiohttp
-telethon
-pytz
-replicate
-requests
-logging
-argparse
+aiohttp==3.8.5
+telethon==1.32.1
+pytz==2024.1
+replicate==0.22.0
+requests==2.31.0
